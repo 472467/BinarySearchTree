@@ -18,13 +18,12 @@ void seperatedInput(char*);
 void convertFileInput(char*);
 void addNumberToTree(TreeNode*, TreeNode*, TreeNode*);
 int convertCharPointerToInt(char*);
-
+void separateInput(char*);
+void visualizeTreeUntilMaxDepth(TreeNode*);
 
 
 int main(){
-	
-	Node* stack = new Node("dank");
-	
+
 	cout << "Would you like to input an expression or textfile (1 = expression, 2 = textfile):\n";
 	char* input = new char[2];
 	cin.getline(input, 2);
@@ -51,11 +50,37 @@ int main(){
 void createExpressionTree(char** seperatedInput){//creates expression tree after the input is converted to postfix, runs through printNode rofl
 	TreeNode* head = new TreeNode(NULL, seperatedInput[0]);
 	int count = 1;
-	
-	while(seperatedInput[count != "null"){
-		TreeNode* newNode = new TreeNode(NULL, separatedInput[count]);
+	for(int x = 0; x < 1000; x++){
+		if(strcmp(seperatedInput[x],"null") == 0){
+			break;
+		}
+		cout << seperatedInput[x] << " ";
+	}
+	cout << "\n";
+	while(strcmp(seperatedInput[count], "null") != 0){
+		TreeNode* newNode = new TreeNode(NULL, seperatedInput[count]);
 		TreeNode* current = head;
 		addNumberToTree(head, newNode, current);
+		
+		count++;
+	}
+	
+	visualizeTreeUntilMaxDepth(head);
+	
+	cout << "would you like to delete a number? (1 = yes, 2 = no) \n";
+	char* input = new char[2];
+	cin.getline(input, 2);
+	
+	if(input[0] == 1){
+		cout << "Enter number to delete: ";
+		input = new char[6];
+		cin.getline(input, 6);
+		searchAndDelete(input);
+		cout << endl;
+		visualizeTree(head);
+		
+	}else{
+		exit(420);//lel
 	}
 	
 	
@@ -63,19 +88,47 @@ void createExpressionTree(char** seperatedInput){//creates expression tree after
 
 void addNumberToTree(TreeNode* head, TreeNode* newNode, TreeNode* current){
 	if(current != NULL){
-		int newNum = convertCharPointerToInt(newNode->getChar);
-		int currentNum = convertCharPointerToInt(current->getChar);
+		
+		
+		int newNum = convertCharPointerToInt(newNode->getChar());
+		int currentNum = convertCharPointerToInt(current->getChar());
 		
 		if(newNum >= currentNum){
-			addNumberToTree
-		}else{
+			if(current->getRight() != NULL){
+				
+				current = current->getRight();
+				addNumberToTree(head, newNode, current);
+				
+			}else{
+				
+				current->setRight(newNode);
+				newNode->setParent(current);
+			}
 			
+		}else{
+			if(current->getLeft() != NULL){
+				
+				current = current->getLeft();
+				addNumberToTree(head, newNode, current);
+				
+			}else{
+				
+				current->setLeft(newNode);
+				newNode->setParent(current);
+				
+			}
 		}
 		
 	}else{
 		cout << "Current is NULL" << endl;
 	}
 		
+	
+}
+
+void searchAndDelete(char* input){
+	
+	
 	
 }
 
@@ -87,7 +140,8 @@ void separateInput(char* input){
 	char** seperatedInput = new char*[1000];
 	
 	for(int x = 0; x < 1000; x++){
-		seperatedInput[x] = "null";
+		seperatedInput[x] = new char[40];
+		strcpy(seperatedInput[x], "null");
 	}
 	char* currentNum = new char[5];
 	
@@ -98,7 +152,7 @@ void separateInput(char* input){
 		if(c == ' ' || c == '\n'){
 			
 			if(currentLength > 0){
-				seperatedInput[numberAmount][currentLength + 1] = '\0';
+				seperatedInput[numberAmount][currentLength] = '\0';
 				
 				currentLength = 0;
 				numberAmount++;
@@ -107,15 +161,17 @@ void separateInput(char* input){
 		}else{
 			seperatedInput[numberAmount][currentLength] = c;
 			currentLength++;
+			
+			if(input[count] != '\0'){
+				seperatedInput[numberAmount][currentLength + 1] = '\0';
+			}
 		}
 		
 		
 		count++;
 	}
 	
-	
-	
-	
+	createExpressionTree(seperatedInput);
 }
 
 void convertFileInput(char* f){
@@ -137,7 +193,7 @@ void convertFileInput(char* f){
 		}
 		
 		input[count + 1] = '\0';
-		
+		cout << input << endl; 
 		separateInput(input);
 		
 	}
@@ -149,9 +205,74 @@ void convertFileInput(char* f){
 	
 }
 
+int findDeepest(TreeNode* head){
+	TreeNode* current = head;
+	
+	
+}
 
+void visualizeTreeUntilMaxDepth(TreeNode* head){
+	int currentDepth = 0;
+	int depthProgression = 1;
+	TreeNode* tCurrent = head;
+	bool allNull = false;
+	int nullCounter = 0;
 
+	while(!allNull){
+		
+		char* directions;
+		directionsToBalancedNode(currentDepth, depthProgression, directions);//sets direction
+		int count = 0;
+		while(directions[count] != '\0'){//adds newNode to the most balanced spot by following the directions provided
+			if(directions[count] == 'L'){
+				if(tCurrent->getLeft() != NULL){
+					tCurrent = tCurrent->getLeft();
+					
+				}else{
+					nullCounter++;
+					tCurrent = NULL;
+					break;
+				}
+				
+			}else{
+				if(tCurrent->getRight() != NULL){
+					tCurrent = tCurrent->getRight();
+				}else{
+					nullCounter++;
+					tCurrent = NULL;
+					break;
+				}
+			}
 
+			count++;
+		}
+		
+		if(depthProgression == 1){
+			cout << currentDepth << ": ";
+		}
+		if(tCurrent != NULL){
+			cout << tCurrent->getChar() << " || ";
+		}else{
+			cout << " || ";
+		}
+		
+		if(nullCounter == pow(2, currentDepth)){
+			allNull = true;
+			break;
+		}
+		
+		depthProgression++;
+		if(depthProgression > pow(2, currentDepth)){//designates where the most balanced spot on the tree to add next
+			nullCounter = 0;
+			depthProgression = 1;
+			currentDepth++;
+			cout << "\n";
+		}
+		tCurrent = head;
+	}
+	
+	cout << "\n\n";
+}
 
 void visualizeTree(TreeNode* head){
 	int currentDepth = 0;
@@ -274,7 +395,7 @@ int convertCharPointerToInt(char* c){
 
 	int newNum = convertCharToInt(c[0]);
 
-	while(newChar[count] != '\0'){
+	while(c[count] != '\0'){
 		
 		newNum = (newNum * 10) + convertCharToInt(c[count]);
 		count++;

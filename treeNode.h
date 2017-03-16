@@ -15,6 +15,7 @@ class TreeNode
 	
 	public:
 		TreeNode(TreeNode*, char*);
+		~TreeNode();
 		TreeNode(TreeNode*, TreeNode*, char*);
 		TreeNode(TreeNode*, TreeNode*, TreeNode*, char*);
 		char* getChar();
@@ -29,6 +30,7 @@ class TreeNode
 		TreeNode* getRight();
 		void setRight(TreeNode*);
 		int getDepth();
+		int convertCharPointerToInt(char*);
 };
 
 #endif
