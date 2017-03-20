@@ -12,6 +12,7 @@ class TreeNode
 		TreeNode* left;
 		TreeNode* right;
 		char* c;
+		float id;
 	
 	public:
 		TreeNode(TreeNode*, char*);
@@ -20,6 +21,7 @@ class TreeNode
 		TreeNode(TreeNode*, TreeNode*, TreeNode*, char*);
 		char* getChar();
 		void setChar(char*);
+		void safeDelete();
 		
 		TreeNode* getParent();
 		void setParent(TreeNode*);
@@ -30,7 +32,9 @@ class TreeNode
 		TreeNode* getRight();
 		void setRight(TreeNode*);
 		int getDepth();
-		int convertCharPointerToInt(char*);
+		int convertCharToInt2(char);
+		int convertCharPointerToInt2(char*);
+		float getID();
 };
 
 #endif

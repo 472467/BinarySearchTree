@@ -1,11 +1,13 @@
 #include "treeNode.h"
-
+#include <stdlib.h>
 
 TreeNode::TreeNode(TreeNode* p, char* n){
 	c = n;
 	parent = p;
 	left = NULL;
 	right = NULL;
+	id = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10000000000));//for differentiating which nodes are which, checking by memory locations doesnt work
+	//checkng by value doesn't work since there can be duplicates
 }
 
 TreeNode::TreeNode(TreeNode* p, TreeNode* l, char* n){
@@ -13,6 +15,7 @@ TreeNode::TreeNode(TreeNode* p, TreeNode* l, char* n){
 	parent = p;
 	left = l;
 	right = NULL;
+	id = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10000000000));
 }
 
 TreeNode::~TreeNode(){
@@ -24,6 +27,7 @@ TreeNode::TreeNode(TreeNode* p, TreeNode* l, TreeNode* r, char* n){
 	parent = p;
 	left = l;
 	right = r;
+	id = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10000000000));
 }
 
 char* TreeNode::getChar(){
@@ -59,11 +63,11 @@ void TreeNode::safeDelete(){//removes references to this and relocates current c
 	int rightNum = 0;
 	
 	if(getLeft() != NULL){
-		leftNum  = convertCharPointerToInt(getLeft()->getChar());
+		leftNum  = convertCharPointerToInt2(getLeft()->getChar());
 	}
 	
 	if(getRight() != NULL){
-		rightNum  = convertCharPointerToInt(getRight()->getChar());
+		rightNum  = convertCharPointerToInt2(getRight()->getChar());
 	}
 
 
@@ -76,20 +80,22 @@ void TreeNode::safeDelete(){//removes references to this and relocates current c
 				getParent()->setRight(NULL);
 				delete this;
 			}else{
-				if(getParent()->getLeft()[0] == this[0]){
+				
+				
+				if(getParent()->getLeft()->getID() == getID()){//need to compare memory locations of these to shiite objects
 					getParent()->setLeft(NULL);
 					delete this;
-				}else if(getParent()->getRight()[0] == this[0]){
+				}else if(getParent()->getRight()->getID() == getID()){
 					getParent()->setRight(NULL);
 					delete this;
-				}else{
-					cout << "CRITICAL ERROR: PARENT CHILDREN NOT EQUIVELENT TO THIS";
+				}else{//in the extremely rare case that the IDs manage to be equal(insanely unlikely)
+					std::cout << "CRITICAL ERROR: PARENT CHILDREN NOT EQUIVELENT TO THIS";
 					exit(20);
 				}
 			}
 		}else{
 			delete this;
-			cout << "No more chilren to delete.";
+			std::cout << "No more chilren to delete.";
 			exit(0);
 		}
 	}else if(getLeft() != NULL || getRight() != NULL){//left child only , right child only, both
@@ -107,46 +113,49 @@ void TreeNode::safeDelete(){//removes references to this and relocates current c
 			
 			delete this;
 			
-		}else{
+		}else{//needs to find child to swap with and delete so we dont have to delete the head(too much work to deal with)
 			TreeNode* tRight = NULL;
 			TreeNode* tLeft = NULL;
-			int tChar = getLeft()->getChar();
 			
-			if(getLeft()->getLeft() != NULL){
-				tLeft = getLeft()->getLeft();
+			if(getLeft() != NULL && getRight() != NULL){
+				TreeNode* current = this;//this is the head of the entire tree
+				current = current->getLeft();
+				while(current->getRight() != NULL){
+					current = current->getRight();
+				}
+				this->setChar(current->getChar());
+				
+				current->safeDelete();
+				
+			}else if(getLeft() != NULL){//just call safeDelete for left or right children
+				setChar(getLeft()->getChar());
+				getLeft()->safeDelete();
+			}else{
+				setChar(getRight()->getChar());
+				getRight()->safeDelete();
 			}
 			
-			if(getLeft()->getRight() != NULL){
-				tRight = getLeft()->getRight();
-			}
-			if(tRight != NULL){
-				tRight->setParent(this);
-				setRight(tRight);
-			}
 			
-			if(tLeft != NULL){
-				tLeft->setParent(this);
-				setLeft(tLeft);
-			}
-			setChar(tChar);
-			
-			delete (getLeft());
 			
 		}
 	}else{
-		cout <<"Error: safeDelete rare exception";
+		std::cout <<"Error: safeDelete rare exception";
 		exit(20);
 	}
 }
 
-int TreeNode::convertCharPointerToInt(char* c){
+float TreeNode::getID(){
+	return id;
+}
+
+int TreeNode::convertCharPointerToInt2(char* c){
 	int count = 1;
 
-	int newNum = convertCharToInt(c[0]);
+	int newNum = convertCharToInt2(c[0]);
 
 	while(c[count] != '\0'){
 		
-		newNum = (newNum * 10) + convertCharToInt(c[count]);
+		newNum = (newNum * 10) + convertCharToInt2(c[count]);
 		count++;
 		
 	}
@@ -166,4 +175,32 @@ int TreeNode::getDepth(){
 		}
 	}
 	return depth;
+}
+
+int TreeNode::convertCharToInt2(char c){
+	//cout << c;
+	if(c == '0'){
+		return 0;
+	}else if(c == '1'){
+		return 1;
+	}else if(c == '2'){
+		return 2;
+	}else if(c == '3'){
+		return 3;
+	}else if(c == '4'){
+		return 4;
+	}else if(c == '5'){
+		return 5;
+	}else if(c == '6'){
+		return 6;
+	}else if(c == '7'){
+		return 7;
+	}else if(c == '8'){
+		return 8;
+	}else if(c == '9'){
+		return 9;
+	}
+	
+	//cout << "error";
+	return NULL;
 }

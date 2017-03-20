@@ -20,6 +20,7 @@ void addNumberToTree(TreeNode*, TreeNode*, TreeNode*);
 int convertCharPointerToInt(char*);
 void separateInput(char*);
 void visualizeTreeUntilMaxDepth(TreeNode*);
+void searchAndDelete(TreeNode*, char* input, bool&);
 
 
 int main(){
@@ -71,13 +72,26 @@ void createExpressionTree(char** seperatedInput){//creates expression tree after
 	char* input = new char[2];
 	cin.getline(input, 2);
 	
-	if(input[0] == 1){
-		cout << "Enter number to delete: ";
-		input = new char[6];
-		cin.getline(input, 6);
-		searchAndDelete(input);
-		cout << endl;
-		visualizeTree(head);
+	if(input[0] == '1'){
+		while(true){
+			cout << "Enter number to delete: ";
+			input = new char[6];
+			cin.getline(input, 6);
+			
+			bool numFound = false;
+			searchAndDelete(head, input, numFound);
+			
+			cout << endl;
+			visualizeTreeUntilMaxDepth(head);
+			
+			cout << "Would you like to delete something else? (1 = yes, 2 = no)\n";
+			input = new char[2];
+			cin.getline(input, 2);
+			if(input[0] != '1'){
+				break;
+			}
+			
+		}
 		
 	}else{
 		exit(420);//lel
@@ -126,9 +140,37 @@ void addNumberToTree(TreeNode* head, TreeNode* newNode, TreeNode* current){
 	
 }
 
-void searchAndDelete(char* input){
-	
-	
+void searchAndDelete(TreeNode* current, char* input, bool& numberFound){
+	if(current != NULL){
+		int newNum = convertCharPointerToInt(input);
+		int currentNum = convertCharPointerToInt(current->getChar());
+		
+		if(newNum == currentNum){
+			if(!numberFound){
+				numberFound = true;
+				current->safeDelete();
+			}
+			
+		}else{
+			if(current->getLeft() != NULL){
+				
+				current = current->getLeft();
+				searchAndDelete(current, input, numberFound);
+				
+			}
+			
+			if(current->getRight() != NULL){
+				
+				current = current->getRight();
+				searchAndDelete(current, input, numberFound);
+				
+			}
+			
+		}
+		
+	}else{
+		cout << "Current is NULL" << endl;
+	}
 	
 }
 
@@ -163,7 +205,7 @@ void separateInput(char* input){
 			currentLength++;
 			
 			if(input[count] != '\0'){
-				seperatedInput[numberAmount][currentLength + 1] = '\0';
+				seperatedInput[numberAmount][currentLength] = '\0';
 			}
 		}
 		
